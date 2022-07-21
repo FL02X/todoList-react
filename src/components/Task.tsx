@@ -1,5 +1,5 @@
-import userEvent from "@testing-library/user-event";
-import { useEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
+import { motion, Reorder } from "framer-motion";
 
 const Task = (props: {
   id: number;
@@ -9,12 +9,14 @@ const Task = (props: {
   taskName: string;
   taskDate: string;
   taskBody: string;
+  borderLimitRef: RefObject<HTMLDivElement>;
 }) => {
   const id = props.id;
   const [status, setStatus] = useState(props.taskStatus);
   const [name, setName] = useState(props.taskName);
   const date = props.taskDate;
   const [body, setBody] = useState(props.taskBody);
+  const borderLimit = props.borderLimitRef;
 
   const cardHeaderColor = useRef<HTMLDivElement>(null);
   const [editMode, setEditMode] = useState(false);
@@ -42,10 +44,24 @@ const Task = (props: {
   );
 
   return (
-    <div className="mb-4 col-sm-6">
-      <div className="border rounded shadow">
+    <Reorder.Item
+      key={id}
+      value={Task}
+      drag
+      dragConstraints={props.borderLimitRef}
+      dragSnapToOrigin={true}
+      whileDrag={{ scale: 1.05 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="mb-4 col-sm-6"
+    >
+      <div
+        className="border rounded shadow"
+        style={{ backgroundColor: "#ffffff", fontFamily: "Nunito" }}
+      >
         <div className="card-header">
-          <button
+          <motion.button
             type="button"
             className="btn btn-secondary"
             onClick={() => {
@@ -70,7 +86,7 @@ const Task = (props: {
                 <strong className="text-warning">TODO</strong>
               )}
             </span>
-          </button>
+          </motion.button>
         </div>
 
         <div>
@@ -91,31 +107,35 @@ const Task = (props: {
               <div className="row">
                 <div className="col-6">
                   {status ? (
-                    <button
+                    <motion.button
                       onClick={() => setEditMode((prevState) => !prevState)}
                       className="btn btn-warning w-100 me-0"
                       disabled
                     >
                       <i className="bi bi-pencil-fill me-2"> </i>edit task
-                    </button>
+                    </motion.button>
                   ) : (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
                       onClick={() => setEditMode((prevState) => !prevState)}
                       className="btn btn-warning w-100 me-0"
                     >
                       <i className="bi bi-pencil-fill me-2"> </i>edit task
-                    </button>
+                    </motion.button>
                   )}
                 </div>
                 <div className="col-6">
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={() => {
                       props.removeComponent(id);
                     }}
                     className="btn btn-danger w-100"
                   >
                     <i className="bi bi-trash-fill me-2"> </i>delete task
-                  </button>
+                  </motion.button>
                 </div>
               </div>
             </div>
@@ -149,7 +169,7 @@ const Task = (props: {
                 ></textarea>
               </p>
               <p>
-                <button
+                <motion.button
                   onClick={() => {
                     let newArray = [...taskData];
                     newArray[2] = name;
@@ -160,20 +180,19 @@ const Task = (props: {
                     localStorage.setItem(String(id), JSON.stringify(newArray));
                     setEditMode((prevState) => !prevState);
                   }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
                   className="btn btn-success w-50"
                 >
                   <i className="bi bi-card-checklist me-2"></i>
                   save
-                </button>
-                {/* <button className="btn btn-outline-danger w-50">
-                        Delete Task
-                      </button> */}
+                </motion.button>
               </p>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </Reorder.Item>
   );
 };
 

@@ -1,15 +1,7 @@
 import Header from "./components/Header";
 import AddTask from "./components/AddTask";
-import Task from "./components/Task";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import { isPropertySignature } from "typescript";
-import { any } from "prop-types";
+
+import { useEffect } from "react";
 
 function App() {
   useEffect(() => {

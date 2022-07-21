@@ -9,7 +9,7 @@ const Header = () => {
             style={{ height: "100px", width: "100px" }}
           ></img>
         </div>
-        <div className="p-4 pb-2 col-6">
+        <div style={{ fontFamily: "Nunito" }} className="p-4 pb-2 col-6">
           <h1>react-todo-app</h1>
           <p>simple todo application written in React, using localStorage.</p>
         </div>

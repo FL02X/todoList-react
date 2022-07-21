@@ -2,9 +2,16 @@ import { render } from "@testing-library/react";
 import { number } from "prop-types";
 import { useContext, useEffect, useRef, useState } from "react";
 import Task from "./Task";
+import { AnimatePresence, motion, Reorder } from "framer-motion";
 
 const AddTask = () => {
   const [inputList, setInputList] = useState([] as any);
+  const [name, setName] = useState("");
+  const [body, setBody] = useState("");
+  const [date, setDate] = useState("");
+  const [taskNumber, setTaskNumber] = useState(666);
+  const borderLimit = useRef<HTMLDivElement>(null);
+  const focusTask = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     Object.keys(localStorage)
@@ -22,6 +29,7 @@ const AddTask = () => {
         setInputList((prevState: any) => [
           ...prevState,
           <Task
+            key={localTaskId}
             id={localTaskId}
             locallyMounted={true}
             removeComponent={removeComponent}
@@ -29,13 +37,11 @@ const AddTask = () => {
             taskName={localTaskName}
             taskDate={localTaskDate}
             taskBody={localTaskBody}
+            borderLimitRef={borderLimit}
           />,
         ]);
       });
-    console.log(inputList);
   }, []);
-
-  const [taskNumber, setTaskNumber] = useState(666);
 
   useEffect(() => {
     if (taskNumber !== 666) {
@@ -44,10 +50,6 @@ const AddTask = () => {
       );
     }
   }, [taskNumber]);
-
-  const [name, setName] = useState("");
-  const [body, setBody] = useState("");
-  const [date, setDate] = useState("");
 
   useEffect(() => {
     setDate(getDate());
@@ -64,12 +66,14 @@ const AddTask = () => {
     return `${day}-${month + 1}-${year} ${hours}:${minutes}:${seconds}`;
   };
 
-  const focusTask = useRef<HTMLDivElement>(null);
-
   function removeComponent(taskId: number) {
     setTaskNumber(taskId);
-    // console.log(taskId);
   }
+
+  // const generateNewKey = () => {
+  //   Object.keys(localStorage).sort().forEach((value: any) => {
+
+  // }
 
   const createTask = (name: string, body: string, date: string) => {
     getDate();
@@ -78,28 +82,34 @@ const AddTask = () => {
       : setInputList((prevState: any) => [
           ...prevState,
           <Task
-            key={inputList.length}
-            id={inputList.length}
+            key={inputList.length + 1}
+            id={inputList.length + 1}
             locallyMounted={false}
             removeComponent={removeComponent}
             taskStatus={false}
             taskName={name}
             taskDate={date}
             taskBody={body}
+            borderLimitRef={borderLimit}
           />,
         ]);
     focusTask.current?.scrollIntoView();
+    console.log(Number(Object.keys(localStorage)) + 1);
   };
 
   return (
     <div>
       <div
-        style={{ backgroundColor: "#FFFFFF", width: "410px" }}
+        style={{
+          backgroundColor: "#FFFFFF",
+          width: "410px",
+          fontFamily: "Nunito",
+        }}
         className="border rounded  mx-auto my-auto"
       >
-        <div className="row">
+        <div style={{ fontFamily: "Helvetica" }} className="row">
           <div className="m-3 mb-2 col-12">
-            <h2>add task:</h2>
+            <h1>add task:</h1>
           </div>
         </div>
 
@@ -129,18 +139,16 @@ const AddTask = () => {
                   }}
                 ></textarea>
 
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="form-control btn btn-primary mt-4"
                   type={"button"}
                   onClick={() => createTask(name, body, date)}
                 >
                   <i className="bi bi-list-task me-2"> </i> generate new task!
-                </button>
+                </motion.button>
               </div>
-              {/* <div className="mb-1"></div>
-              <div>
-                <p className="mt-3"></p>
-              </div> */}
             </form>
           </div>
         </div>
@@ -161,9 +169,12 @@ const AddTask = () => {
           </div>
         </div>
       ) : (
-        <div
+        <Reorder.Group
+          values={inputList}
+          onReorder={setInputList}
           style={{ backgroundColor: "#FFFFFF" }}
           className="mt-5 p-3 w-75  mx-auto my-auto border rounded"
+          ref={borderLimit}
         >
           <div className="row ">
             <div className="col-12 text-center">
@@ -171,11 +182,18 @@ const AddTask = () => {
             </div>
           </div>
 
-          <div style={{ position: "relative" }} className="row mt-2 ge-5">
-            {inputList}
-          </div>
+          <AnimatePresence>
+            <div style={{ position: "relative" }} className="row mt-2 ge-5">
+              {inputList.map((item: any) => (
+                <Reorder.Item id="item.id" value={item}>
+                  xqcl
+                </Reorder.Item>
+              ))}
+            </div>
+          </AnimatePresence>
+
           <div ref={focusTask}></div>
-        </div>
+        </Reorder.Group>
       )}
     </div>
   );
