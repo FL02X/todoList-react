@@ -1,8 +1,6 @@
-import { render } from "@testing-library/react";
-import { number } from "prop-types";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Task from "./Task";
-import { AnimatePresence, motion, Reorder } from "framer-motion";
+import { motion, Reorder } from "framer-motion";
 
 const AddTask = () => {
   const [inputList, setInputList] = useState([] as any);
@@ -12,6 +10,9 @@ const AddTask = () => {
   const [taskNumber, setTaskNumber] = useState(666);
   const borderLimit = useRef<HTMLDivElement>(null);
   const focusTask = useRef<HTMLDivElement>(null);
+
+  //Gets all localStorage string 'props' and renders
+  //new components based on those.
 
   useEffect(() => {
     Object.keys(localStorage)
@@ -43,7 +44,12 @@ const AddTask = () => {
       });
   }, []);
 
-  useEffect(() => {
+  //UseEffect to fix weird side-effects of
+  //components being rendered locally with
+  //the ones from the localStorage.
+
+  const removedTask = useEffect(() => {
+    //The 'if' is just to fix weird behaviour of React.
     if (taskNumber !== 666) {
       setInputList(
         inputList.filter((data: any) => data.props.id !== taskNumber)
@@ -51,7 +57,10 @@ const AddTask = () => {
     }
   }, [taskNumber]);
 
-  useEffect(() => {
+  //UseEffect to fix bug related to first
+  //component not getting any date.
+
+  const getDateEffect = useEffect(() => {
     setDate(getDate());
   }, [inputList]);
 
@@ -66,14 +75,14 @@ const AddTask = () => {
     return `${day}-${month + 1}-${year} ${hours}:${minutes}:${seconds}`;
   };
 
+  //It triggers a useEffect used to remove tasks.
+  //Needed to grab the real component in the list.
+
   function removeComponent(taskId: number) {
     setTaskNumber(taskId);
   }
 
-  // const generateNewKey = () => {
-  //   Object.keys(localStorage).sort().forEach((value: any) => {
-
-  // }
+  //Creates a local task.
 
   const createTask = (name: string, body: string, date: string) => {
     getDate();
@@ -169,12 +178,9 @@ const AddTask = () => {
           </div>
         </div>
       ) : (
-        <Reorder.Group
-          values={inputList}
-          onReorder={setInputList}
+        <motion.div
           style={{ backgroundColor: "#FFFFFF" }}
           className="mt-5 p-3 w-75  mx-auto my-auto border rounded"
-          ref={borderLimit}
         >
           <div className="row ">
             <div className="col-12 text-center">
@@ -182,18 +188,12 @@ const AddTask = () => {
             </div>
           </div>
 
-          <AnimatePresence>
-            <div style={{ position: "relative" }} className="row mt-2 ge-5">
-              {inputList.map((item: any) => (
-                <Reorder.Item id="item.id" value={item}>
-                  xqcl
-                </Reorder.Item>
-              ))}
-            </div>
-          </AnimatePresence>
+          <div style={{ position: "relative" }} className="row mt-2 ge-5">
+            {inputList}
+          </div>
 
           <div ref={focusTask}></div>
-        </Reorder.Group>
+        </motion.div>
       )}
     </div>
   );

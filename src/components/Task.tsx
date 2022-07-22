@@ -44,16 +44,11 @@ const Task = (props: {
   );
 
   return (
-    <Reorder.Item
-      key={id}
-      value={Task}
-      drag
-      dragConstraints={props.borderLimitRef}
-      dragSnapToOrigin={true}
-      whileDrag={{ scale: 1.05 }}
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ delay: 0.2 }}
       className="mb-4 col-sm-6"
     >
       <div
@@ -192,7 +187,7 @@ const Task = (props: {
           )}
         </div>
       </div>
-    </Reorder.Item>
+    </motion.div>
   );
 };
 
